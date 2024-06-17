@@ -69,10 +69,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "webTitle:build:production"
+              "buildTarget": "TgWebTest:build:production"
             },
             "development": {
-              "buildTarget": "webTitle:build:development"
+              "buildTarget": "TgWebTest:build:development"
             }
           },
           "defaultConfiguration": "development"
