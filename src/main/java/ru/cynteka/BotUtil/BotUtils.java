@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.TelegramException;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.MessageEntity;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.request.GetChat;
@@ -61,11 +62,13 @@ public class BotUtils {
             user.setChatId(chatId);
             this.dbService.saveUser(user);
             SendResponse response = this.bot.execute(new SendMessage(chatId, "Вы авторизованы на портале Закупай."));
+        }else {
+           //https://t.me/ts_mini_app_bot/tgwebtest
+            MessageEntity messageEntity = new MessageEntity(MessageEntity.Type.url,20,20);
+            messageEntity.url("https://t.me/ts_mini_app_bot/tgwebtest");
+            SendResponse response = this.bot.execute(new SendMessage(chatId, "https://t.me/ts_mini_app_bot/tgwebtest")
+                    .entities(messageEntity));
         }
-    }
-
-    private GetChatResponse getChatFulInfo(Long id) {
-        return bot.execute(new GetChat(id));
     }
 
     private void processException(TelegramException e) {

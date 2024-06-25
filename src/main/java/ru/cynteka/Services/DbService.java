@@ -2,6 +2,7 @@ package ru.cynteka.Services;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import jakarta.inject.Singleton;
 import ru.cynteka.Models.User;
 
 import java.sql.Connection;
