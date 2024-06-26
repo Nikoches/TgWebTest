@@ -1,0 +1,11 @@
+.toppings {
+  display: flex;
+  flex-direction: column;
+  margin-left: 2em;
+
+  & > p {
+    font-size: 1.4em;
+    font-weight: 600;
+    margin-bottom: 0.4em;
+  }
+}
