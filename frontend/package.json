@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "cloudflare-build": " ng build --configuration production --base-href https://tgwebtest.pages.dev/"
+    "cloudflare-build-prod": " ng build --configuration production --base-href https://tgwebtest.pages.dev/",
+    "cloudflare-build-dev": " ng build --configuration development --base-href https://tgwebtest.pages.dev/"
   },
   "private": true,
   "dependencies": {
