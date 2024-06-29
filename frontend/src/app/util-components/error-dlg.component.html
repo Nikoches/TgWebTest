@@ -1,0 +1,17 @@
+<div class="flex-column">
+  <div class="title-container">
+    <span class="title">{{title | translate}} </span>
+  </div>
+  <div class="message-container">
+    <span *ngFor="let message of messages" class="message">{{message | translate}} </span>
+  </div>
+  <div class="buttons">
+    <button class="button" mat-stroked-button color="primary" (click)="cancelDlg()">{{closeButton.label| translate}}</button>
+  </div>
+</div>
+
+
+
+
+
+

@@ -9,3 +9,6 @@
     margin-bottom: 0.4em;
   }
 }
+.dd{
+  background: var(--tg-theme-bg-color);
+}
