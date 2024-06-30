@@ -1,7 +1,9 @@
+
 import {FormGroup} from "@angular/forms";
-import {IdNameEntity} from "./id-name-entity";
-import {Account, Supplier} from "./account";
+import {Supplier} from "./supplier";
+import {Account} from "./account";
 import {CompanyDocument} from "./company-document";
+import {OfferFile} from "./offer-file";
 import {OrderItem} from "./order-item";
 
 export class ServerDataForOffer {
@@ -11,21 +13,6 @@ export class ServerDataForOffer {
   result: boolean;
 }
 
-export class OfferDataForServer {
-  acceptanceOnReady: boolean
-  email: string;
-  file: IdNameEntity;
-  sourceAccount: Account;
-  outerOfferCreateModel: OuterOfferCreateModel;
-
-  constructor(acceptanceOnReady: boolean, email: string, file: IdNameEntity, sourceAccount: Account, outerOfferCreateModel: OuterOfferCreateModel) {
-    this.acceptanceOnReady = acceptanceOnReady;
-    this.email = email;
-    this.file = file;
-    this.sourceAccount = sourceAccount;
-    this.outerOfferCreateModel = outerOfferCreateModel;
-  }
-}
 
 export class OuterOfferCreateModel {
   bankGuarantee: boolean;
@@ -36,9 +23,7 @@ export class OuterOfferCreateModel {
   orderItems: OrderItem[];
   filesForChat: any[];
   fillInClient: boolean;
-  operatorComment: string;
   comment: string;
-  fromCyntekaMobile: boolean;
   orderId: number;
   orderItemIds: number[];
   prepaidPercent: number;
@@ -46,7 +31,11 @@ export class OuterOfferCreateModel {
   recognizedCurrentAccount: any;
   validityPeriod: number;
   withoutVAT: any;
-  sourceAccount: Account;
+  accountId: Account;
+  brandId: any;
+  code: null;
+  offerViewModel: null;
+  transactCheckbox: boolean;
 
   constructor() {
   }
@@ -57,27 +46,28 @@ export class OuterOfferCreateModel {
                                 orderId: number): OuterOfferCreateModel {
     const outerModel: OuterOfferCreateModel = new OuterOfferCreateModel();
     const ctrls = formgroup.controls;
-    outerModel.bankGuarantee = ctrls['bankGuarantee'].value || null;
+    outerModel.bankGuarantee = ctrls['bankGuarantee']?.value || null;
+    outerModel.accountId = new Account(ctrls['payer'].value.id);
+    outerModel.brandId = null;
+    outerModel.code = null;
+    outerModel.comment = ctrls['comment'].value;
     outerModel.companyDocumentId = ctrls['companyDocument'].value?.id;
     outerModel.delay = ctrls['delay'].value;
     outerModel.deliveryIncluded = ctrls['deliveryIncluded'].value;
     outerModel.documentId = fileId;
+    outerModel.fillInClient = false;
     outerModel.orderItems = items;
     outerModel.filesForChat = [];
-    outerModel.fillInClient = false;
-    outerModel.operatorComment = ctrls['operatorComment'].value;
-    outerModel.comment = ctrls['comment'].value;
-    outerModel.fromCyntekaMobile = true;
+    outerModel.offerViewModel = null;
     outerModel.orderId = orderId;
     outerModel.orderItemIds = items.map(oi => oi.id);
+    outerModel.orderItems = items
     outerModel.prepaidPercent = ctrls['prepaidPercent'].value;
     outerModel.validityPeriod = ctrls['validityPeriod'].value || 0;
-    outerModel.sourceAccount = new Account(ctrls['payer'].value.id);
+    outerModel.transactCheckbox = false;
     outerModel.recognizedBik = null;
     outerModel.recognizedCurrentAccount = null;
     outerModel.withoutVAT = null;
     return outerModel;
-
-
   }
 }

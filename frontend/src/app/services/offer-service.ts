@@ -1,17 +1,14 @@
-import {inject, Injectable} from '@angular/core';
-import {Observable, Subscription} from "rxjs";
-import {OuterOfferCreateModel, ServerDataForOffer} from "../models/server-data-for-offer";
-import {HttpClient, HttpHandlerFn, HttpRequest} from "@angular/common/http";
+import {Injectable} from '@angular/core';
+import {HttpClient} from "@angular/common/http";
+import {Observable} from "rxjs";
+import {OfferDataForServer, ServerDataForOffer} from "../models/server-data-for-offer";
 
 @Injectable({
   providedIn: 'root'
 })
-export class PortalApiService {
-
-  private readonly portalUrl:string = "";
+export class OfferService {
 
   constructor(private http: HttpClient) {
-    //this.http
   }
 
   public getSuppliers(param?: string): Observable<Partial<ServerDataForOffer>> {
@@ -26,8 +23,8 @@ export class PortalApiService {
     return this.http.get<Partial<ServerDataForOffer>>(`/core/offer/company-documents?companyInn=${param}`);
   }
 
-  public sendToProcess(data: OuterOfferCreateModel): Observable<Partial<ServerDataForOffer>> {
-    return this.http.post(`/core/offers/newouter`, data);
+  public sendToProcess(data: OfferDataForServer, id: number): Observable<Partial<ServerDataForOffer>> {
+    return this.http.post(`/core/orders/${id}/send/to/offer/process`, data);
   }
 
   public sendRecognizeRequest(id: number): Observable<Partial<ServerDataForOffer>> {
@@ -41,10 +38,4 @@ export class PortalApiService {
   public uploadFile(formData: FormData): Observable<any> {
     return this.http.post('/core/orders/upload?checkFormat=true', formData);
   }
-
-  public getOfferData(): Observable<any> {
-    return this.http.post('/core/supplier/getorders',{"id":[228365752],"requestId":960146,"status":"actual","size":10,"lastId":-1});
-  }
-
 }
-
