@@ -1,9 +1,9 @@
-import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import {CUSTOM_ELEMENTS_SCHEMA, forwardRef, NgModule} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import {AccountNameTransform, AppComponent} from './app.component';
-import {ReactiveFormsModule} from "@angular/forms";
+import {NG_VALUE_ACCESSOR, ReactiveFormsModule} from "@angular/forms";
 import {TelegramApiServiceService} from "./services/telegram-api-service.service";
 import {PortalApiService} from "./services/portal-api.service";
 import {MatTreeModule} from "@angular/material/tree";
@@ -21,6 +21,7 @@ import {HttpClient, provideHttpClient, withInterceptors} from '@angular/common/h
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {authInterceptor} from "./services/auth.service";
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
+import {MatInputModule} from "@angular/material/input";
 
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
   // return new TranslateHttpLoader(http,'../assets/locale/', '.json')
@@ -49,6 +50,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
         MatCardHeader,
         MatCardContent,
         MatFormFieldModule,
+        MatInputModule,
         TranslateModule.forRoot({
             defaultLanguage: 'ru',
             loader: {

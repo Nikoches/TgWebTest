@@ -35,7 +35,7 @@ export class AppComponent {
   payerList: Account[] = [];
   companyDocumentList: CompanyDocument[] = [];
   availableAnswers: string [] = ['yes', 'no', 'partially']
-  form: FormGroup;
+  mainForm: FormGroup;
   flatNodeMap: Map<DocumentFlatNode, CompanyDocument> = new Map<DocumentFlatNode, CompanyDocument>();
   nestedNodeMap: Map<CompanyDocument, DocumentFlatNode> = new Map<CompanyDocument, DocumentFlatNode>();
   treeControl: FlatTreeControl<DocumentFlatNode>;
@@ -53,21 +53,28 @@ export class AppComponent {
               private portalService:PortalApiService, private errorService:ErrorService,
               private translate: TranslateService) {  }
 
- async ngOnInit() {
-    this.route.queryParams
-      .subscribe({
-          next: (value) => console.log(),
-          complete: () => setTimeout(()=> this.loadingOrderInfo = false,5000)
-        }
-      );
+  ngOnInit() {
+    // this.route.queryParams
+    //   .subscribe({
+    //       next: (value) => console.log(),
+    //       complete: () => setTimeout(()=> this.loadingOrderInfo = false,5000)
+    //     }
+    //   );
     // this.order = this.data.order;
     // this.orderItems = this.data.orderItems;
     this.portalService.getOrderData("a1")
       .subscribe({
-        next: (value) => console.log(value),
-        complete: () => console.log()
+        next: (value) => {
+          let order = value["orders"][0];
+          this.order = order;
+          this.orderItems = this.order.orderItems;
+        },
+        complete: () => {
+          this.mainForm = this.initForm(this.orderItems);
+          this.loadingOrderInfo = false;
+        }
       });
-    this.form = this.initForm(this.orderItems);
+    //this.mainForm = this.initForm(this.orderItems);
     // this.initSubscriptions();
     // this.disableCellsIfNeeded();
     // this.disablePercentAndDelay();
@@ -89,33 +96,32 @@ export class AppComponent {
         amount:[oi.amount],
         deliveryDays:[oi.deliveryDays],
         checked: [oi.checked],
-        count:[oi.count - oi.skipCount],
-        goodName: [oi.goodName]
+        count:[{value: oi.count - oi.skipCount, disabled: true}],
+        goodName: [{value:oi.goodName,disabled: true}]
       })
     }
 
-    const array = orderItems.map(createFormControl);
+    const array = this.fb.array(orderItems.map(createFormControl));
 
     return this.fb.group({
+      fileControl: ["", Validators.required],
       payer: ["", Validators.required],
-      companyDocument: [""],
+      companyDocument: [{value:"", disabled: true}],
       deliveryIncluded: ["", Validators.required],
       prepaid: ["", Validators.required],
       prepaidPercent:[""],
-      validityPeriod:[""],
-      // checkAll:[this.orderItems.every(oi => oi.checked)],
       needDelay: ["", Validators.required],
-      // items: this.fb.array(array),
-      allAvailable: ["", Validators.required],
       delay:[""],
-      // bankGuarantee:[""],
-      comment:[""],
-      fileControl: ["", Validators.required]
+      allAvailable: ["", Validators.required],
+      validityPeriod:[""],
+      checkAll:[this.orderItems.every(oi => oi.checked)],
+      orderItems: array,
+      comment:[""]
     })
   }
 
   get itemsFormArray(): FormArray {
-    return this.form.get('items') as FormArray;
+    return this.mainForm.get('orderItems') as FormArray;
   }
 
   get itemControlArray(): AbstractControl[] {
@@ -151,12 +157,12 @@ export class AppComponent {
   }
 
   private initDelaySubscription(): void {
-    const delay = this.form.get("delay");
-    this.form.get("needDelay").valueChanges
+    const delay = this.mainForm.get("delay");
+    this.mainForm.get("needDelay").valueChanges
       .subscribe(value => {
         if (value) {
-          if (this.form.get("prepaidPercent").value == 100) {
-            this.form.get("prepaid").patchValue(false);
+          if (this.mainForm.get("prepaidPercent").value == 100) {
+            this.mainForm.get("prepaid").patchValue(false);
           }
           delay.enable();
           delay.setValidators([Validators.required, Validators.min(1)]);
@@ -170,8 +176,8 @@ export class AppComponent {
   }
 
   private initPrepaidSubscription(): void {
-    const prepaidPercent = this.form.get("prepaidPercent");
-    this.form.get("prepaid").valueChanges
+    const prepaidPercent = this.mainForm.get("prepaidPercent");
+    this.mainForm.get("prepaid").valueChanges
       .subscribe(value => {
         if (value) {
           prepaidPercent.enable();
@@ -186,7 +192,7 @@ export class AppComponent {
   }
 
   private initPayerSubscription(): void {
-    this.form.get("payer").valueChanges
+    this.mainForm.get("payer").valueChanges
       .subscribe(() => {
         if (this.companyDocumentList) {
           this.treeDataSource.data = this.prepareDocuments(this.companyDocumentList);
@@ -210,24 +216,24 @@ export class AppComponent {
           control.get("deliveryDays").enable();
         }
         if (this.itemControlArray.every(control => control.get("checked").value === true)) {
-          this.form.get("checkAll").patchValue(true);
+          this.mainForm.get("checkAll").patchValue(true);
         } else {
-          this.form.get("checkAll").patchValue(false);
+          this.mainForm.get("checkAll").patchValue(false);
         }
       });
     })
   }
 
   private disablePercentAndDelay() {
-    this.form.get("delay").disable();
-    this.form.get("prepaidPercent").disable();
+    this.mainForm.get("delay").disable();
+    this.mainForm.get("prepaidPercent").disable();
   }
 
   private setAdditionalPropsIfNeeded(): void {
     //todo
     if (false) {
-      this.form.get("bankGuarantee").setValidators([Validators.required]);
-      this.form.get("bankGuarantee").updateValueAndValidity();
+      this.mainForm.get("bankGuarantee").setValidators([Validators.required]);
+      this.mainForm.get("bankGuarantee").updateValueAndValidity();
     }
   }
 
@@ -244,11 +250,11 @@ export class AppComponent {
     const allNulls = checkedItems.every(ctrl => ctrl.get("availableCount").value == 0);
 
     if (allPresent) {
-      this.form.get("allAvailable").setValue("yes");
+      this.mainForm.get("allAvailable").setValue("yes");
     } else if (allNulls) {
-      this.form.get("allAvailable").setValue("no");
+      this.mainForm.get("allAvailable").setValue("no");
     } else {
-      this.form.get("allAvailable").setValue("partially");
+      this.mainForm.get("allAvailable").setValue("partially");
     }
 
   }
@@ -269,7 +275,7 @@ export class AppComponent {
   }
 
   loadCompanyDocuments(): void {
-    this.portalService.getCompanyDocuments(this.form.get("supplier").value.companyInn)
+    this.portalService.getCompanyDocuments(this.mainForm.get("supplier").value.companyInn)
       .subscribe((data: Partial<ServerDataForOffer>) => {
         this.companyDocumentList = data.documents;
         this.treeDataSource.data = this.prepareDocuments(this.companyDocumentList);
@@ -288,7 +294,7 @@ export class AppComponent {
 
   private tryToSetPayer(): void {
     if (this.order.sourceAccount) {
-      this.form.get("payer").setValue(this.order.sourceAccount);
+      this.mainForm.get("payer").setValue(this.order.sourceAccount);
     }
   }
 
@@ -338,15 +344,15 @@ export class AppComponent {
 
   private getData(): OuterOfferCreateModel {
     const items = this.processOrderItems();
-    if (this.form.invalid) {
-      this.createDlg(this.translate.instant("options.error"), this.translate.instant("orders.orderReport.formInvalid"));
+    if (this.mainForm.invalid) {
+      this.createDlg(this.translate.instant("options.error"), this.translate.instant("orders.orderReport.mainFormInvalid"));
       return null;
     }
     if (items.length == 0 || !this.validItems()) {
       this.createDlg(this.translate.instant("options.error"), this.translate.instant("orders.orderReport.formInvalid"));
       return null;
     }
-    return OuterOfferCreateModel.createFromForms(this.form, this.file?.id, items, this.order.id);
+    return OuterOfferCreateModel.createFromForms(this.mainForm, this.file?.id, items, this.order.id);
 
   }
 
@@ -381,7 +387,7 @@ export class AppComponent {
         .subscribe((data: Partial<ServerDataForOffer>) => {
           if (data.result) {
             this.portalService.sendCheckDuplicatesRequest(file.id).subscribe({
-              next: () => this.form.get("fileControl").patchValue(`${file.name}`),
+              next: () => this.mainForm.get("fileControl").patchValue(`${file.name}`),
               error: error => this.errorService.handleError(this.translate.instant("options.error"), [this.errorService.getError(error)])
             });
           }
@@ -413,10 +419,10 @@ export class AppComponent {
     if ($event.value) {
       return;
     }
-    if ($event.source.id == "needDelay" && !this.form.get('prepaid').value) {
-      this.form.get('prepaid').setValue(true);
-    } else if ($event.source.id == "prepaidRequired" && !this.form.get('needDelay').value) {
-      this.form.get('needDelay').setValue(true);
+    if ($event.source.id == "needDelay" && !this.mainForm.get('prepaid').value) {
+      this.mainForm.get('prepaid').setValue(true);
+    } else if ($event.source.id == "prepaidRequired" && !this.mainForm.get('needDelay').value) {
+      this.mainForm.get('needDelay').setValue(true);
     }
   }
 
@@ -426,7 +432,7 @@ export class AppComponent {
   }
 
   disableCompanyDocumentsByPayer(documents: CompanyDocument[]) {
-    const payerId = this.form.get("payer").value?.company?.id;
+    const payerId = this.mainForm.get("payer").value?.company?.id;
 
     if (!documents) {
       return;
@@ -465,12 +471,12 @@ export class AppComponent {
   }
 
   deleteFile(): void {
-    this.form.get("fileControl").reset();
+    this.mainForm.get("fileControl").reset();
     this.file = null;
   }
 
   selectAll($event: any): void {
-    this.form.get("checkAll").patchValue($event.checked);
+    this.mainForm.get("checkAll").patchValue($event.checked);
     this.itemControlArray.forEach(ctrl => ctrl.get("checked").patchValue($event.checked));
   }
 
@@ -497,9 +503,9 @@ export class AppComponent {
   };
 
   checkPrepaidPercentValue() {
-    if (this.form.get("prepaidPercent").value >= 100) {
-      this.form.get("prepaidPercent").patchValue(100);
-      this.form.get("needDelay").patchValue(false);
+    if (this.mainForm.get("prepaidPercent").value >= 100) {
+      this.mainForm.get("prepaidPercent").patchValue(100);
+      this.mainForm.get("needDelay").patchValue(false);
     }
   }
 

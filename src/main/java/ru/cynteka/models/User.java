@@ -2,7 +2,6 @@ package ru.cynteka.models;
 
 import io.micronaut.data.annotation.Id;
 import io.micronaut.data.annotation.MappedEntity;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 
@@ -24,8 +23,7 @@ public class User {
     @OneToMany(mappedBy = "telegram_notification.person_id")
     List<TelegramNotification> notificationList;
 
-    public User() {
-    }
+    public User() {}
 
     public @NotBlank Long getId() {
         return id;

@@ -3,151 +3,147 @@
 </div>
 <div *ngIf="!loadingOrderInfo" class="dd">
 
-
   <div class="header">{{ 'orders.orderReport.offerFileAttach' | translate }}</div>
+  <form class="offer-form" [formGroup]="mainForm">
 
+    <mat-form-field style="width: 100%;">
+      <mat-label>Прикрепить счет</mat-label>
+      <button mat-icon-button matPrefix (click)="f_input.click()">
+        <mat-icon>attach_file</mat-icon>
+      </button>
+      <input type="text" readonly matInput formControlName="fileControl"/>
+      <input
+        type="file"
+        hidden
+        #f_input
+        (change)="addOfferFile(f_input.files[0])"
+      />
+      <button matSuffix mat-icon-button aria-label="Clear" (click)="deleteFile()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-progress-bar mode="indeterminate" *ngIf="fileLoading"></mat-progress-bar>
+    </mat-form-field>
 
+    <mat-form-field class="form-group select-dropdown" appearance="fill">
+      <mat-label>Укажите юридическое лицо</mat-label>
+      <mat-select class="form-control " id="payer" placeholder="Плательщик"
+                  [compareWith]="compareObjectsById"
+                  formControlName="payer">
+        <input matInput class="searchModel" placeholder="Поиск..." (keyup)="startPayerSearch()"
+               #payerSearch autofocus>
+        <mat-option *ngFor="let p of payerList" [value]="p">{{ p | accountNameTransform }}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-</div>
-<form class="offer-form" [formGroup]="form">
-
-
-  <mat-form-field style="width: 100%;">
-    <mat-label>Прикрепить счет</mat-label>
-    <button mat-icon-button matPrefix (click)="f_input.click()">
-      <mat-icon>attach_file</mat-icon>
-    </button>
-    <input type="text" readonly matInput formControlName="fileControl"/>
-    <input
-      type="file"
-      hidden
-      #f_input
-      (change)="addOfferFile(f_input.files[0])"
-    />
-    <button matSuffix mat-icon-button aria-label="Clear" (click)="deleteFile()">
-      <mat-icon>close</mat-icon>
-    </button>
-    <mat-progress-bar mode="indeterminate" *ngIf="fileLoading"></mat-progress-bar>
-  </mat-form-field>
-
-
-  <mat-form-field class="form-group select-dropdown" appearance="fill">
-    <mat-label>Укажите юридическое лицо</mat-label>
-    <mat-select class="form-control " id="payer" placeholder="Плательщик"
-                [compareWith]="compareObjectsById"
-                formControlName="payer">
-      <input matInput class="searchModel" placeholder="Поиск..." (keyup)="startPayerSearch()"
-             #payerSearch autofocus>
-      <mat-option *ngFor="let p of payerList" [value]="p">{{ p | accountNameTransform }}</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field class="form-group select-dropdown" appearance="fill">
-    <mat-label>Укажите документ основания</mat-label>
-    <mat-select class="form-control " id="companyDocument" data-live-search="true"
-                [disabled]="true"
-                placeholder="Документ" formControlName="companyDocument"
-                (click)="treeControl.expandAll()">
-      <input matInput class="searchModel" placeholder="Поиск..."
-             (keyup)="startDocumentSearch()" (keydown)="$event.stopPropagation()" #documentSearch autofocus>
-      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-          <mat-option [value]="node.item" [disabled]="node.item.disabled">
-            {{ node.item.shortTitle }}
-          </mat-option>
-        </mat-tree-node>
-        <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
-          <mat-option [value]="node.item" [disabled]="node.item.disabled">
-            <div class="level-doc">
-              <mat-icon class="mat-icon-rtl-mirror"></mat-icon>
+    <mat-form-field class="form-group select-dropdown" appearance="fill">
+      <mat-label>Укажите документ основания</mat-label>
+      <mat-select class="form-control " id="companyDocument" data-live-search="true"
+                  placeholder="Документ" formControlName="companyDocument"
+                  (click)="treeControl.expandAll()">
+        <input matInput class="searchModel" placeholder="Поиск..."
+               (keyup)="startDocumentSearch()" (keydown)="$event.stopPropagation()" #documentSearch autofocus>
+        <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+          <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+            <mat-option [value]="node.item" [disabled]="node.item.disabled">
               {{ node.item.shortTitle }}
-            </div>
+            </mat-option>
+          </mat-tree-node>
+          <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
+            <mat-option [value]="node.item" [disabled]="node.item.disabled">
+              <div class="level-doc">
+                <mat-icon class="mat-icon-rtl-mirror"></mat-icon>
+                {{ node.item.shortTitle }}
+              </div>
+            </mat-option>
+          </mat-tree-node>
+        </mat-tree>
+      </mat-select>
+    </mat-form-field>
+
+    <label class="label-for-dropdown">Включена ли стоимость доставки</label>
+
+    <div class="grouped-dropdown">
+      <mat-form-field class="form-group select-dropdown" appearance="fill">
+        <mat-label>Доставка</mat-label>
+        <mat-select class="form-control " id="deliveryIncluded"
+                    formControlName="deliveryIncluded">
+          <mat-option [value]="true">Да</mat-option>
+          <mat-option [value]="false">Нет</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div></div>
+    </div>
+
+    <label class="label-for-dropdown">Требуется предоплата, %?</label>
+
+    <div class="grouped-dropdown">
+      <mat-form-field class="form-group select-dropdown" appearance="fill">
+        <mat-label>Предоплата</mat-label>
+        <mat-select class="form-control " id="prepaidRequired"
+                    formControlName="prepaid" (selectionChange)="updateForm($event)">
+          <mat-option [value]="true">Да</mat-option>
+          <mat-option [value]="false">Нет</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="form-group select-dropdown" appearance="fill">
+        <input class="select-value" matInput type="number" formControlName="prepaidPercent" id="prepaidPercent"
+               (change)="checkPrepaidPercentValue()">
+      </mat-form-field>
+    </div>
+
+    <label class="label-for-dropdown">Требуется отсрочка, дней?</label>
+
+    <div class="grouped-dropdown">
+      <mat-form-field class="form-group select-dropdown" appearance="fill">
+        <mat-label>Отсрочка</mat-label>
+        <mat-select class="form-control " id="needDelay" (selectionChange)="updateForm($event)"
+                    formControlName="needDelay">
+          <mat-option [value]="true">Да</mat-option>
+          <mat-option [value]="false">Нет</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="form-group select-dropdown" appearance="fill">
+        <input class="select-value" matInput type="number" formControlName="delay" id="delay">
+      </mat-form-field>
+    </div>
+
+    <label class="label-for-dropdown">Все в наличии?</label>
+
+    <div class="grouped-dropdown">
+      <mat-form-field class="form-group select-dropdown" appearance="fill">
+        <mat-label>Наличие</mat-label>
+        <mat-select class="form-control" id="allAvailable" formControlName="allAvailable"
+                    (selectionChange)="updateCounts($event)">
+          <mat-option *ngFor="let a of availableAnswers"
+                      [value]="a">{{ a }}
           </mat-option>
-        </mat-tree-node>
-      </mat-tree>
-    </mat-select>
-  </mat-form-field>
+        </mat-select>
+      </mat-form-field>
+      <div></div>
+    </div>
 
-  <label class="label-for-dropdown">Включена ли стоимость доставки</label>
-  <div class="grouped-dropdown">
-    <mat-form-field class="form-group select-dropdown" appearance="fill">
-      <mat-label>Доставка</mat-label>
-      <mat-select class="form-control " id="deliveryIncluded"
-                  formControlName="deliveryIncluded">
-        <mat-option [value]="true">Да</mat-option>
-        <mat-option [value]="false">Нет</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <div></div>
-  </div>
+    <label class="label-for-dropdown">Срок действия счета</label>
 
-  <label class="label-for-dropdown">Требуется предоплата, %?</label>
-  <div class="grouped-dropdown">
-    <mat-form-field class="form-group select-dropdown" appearance="fill">
-      <mat-label>Предоплата</mat-label>
-      <mat-select class="form-control " id="prepaidRequired"
-                  formControlName="prepaid" (selectionChange)="updateForm($event)">
-        <mat-option [value]="true">Да</mat-option>
-        <mat-option [value]="false">Нет</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field class="form-group select-dropdown" appearance="fill">
-      <input class="select-value" matInput type="number" formControlName="prepaidPercent" id="prepaidPercent" (change)="checkPrepaidPercentValue()">
-    </mat-form-field>
-  </div>
-
-  <label class="label-for-dropdown">Требуется отсрочка, дней?</label>
-  <div class="grouped-dropdown">
-    <mat-form-field class="form-group select-dropdown" appearance="fill">
-      <mat-label>Отсрочка</mat-label>
-      <mat-select class="form-control " id="needDelay" (selectionChange)="updateForm($event)"
-                  formControlName="needDelay">
-        <mat-option [value]="true">Да</mat-option>
-        <mat-option [value]="false">Нет</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field class="form-group select-dropdown" appearance="fill">
-      <input class="select-value" matInput type="number" formControlName="delay" id="delay">
-    </mat-form-field>
-  </div>
-
-
-  <label class="label-for-dropdown">Все в наличии?</label>
-  <div class="grouped-dropdown">
-    <mat-form-field class="form-group select-dropdown" appearance="fill">
-      <mat-label>Наличие</mat-label>
-      <mat-select class="form-control" id="allAvailable" formControlName="allAvailable"
-                  (selectionChange)="updateCounts($event)">
-        <mat-option *ngFor="let a of availableAnswers"
-                    [value]="a">{{a}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <div></div>
-  </div>
-
-  <label class="label-for-dropdown">Срок действия счета</label>
-  <div class="grouped-dropdown">
-    <mat-form-field class="form-group select-dropdown" appearance="fill">
-      <mat-label>Срок действия счета</mat-label>
-      <input class="select-value" matInput type="number" formControlName="validityPeriod" id="validityPeriod">
-    </mat-form-field>
-    <div></div>
-  </div>
-
+    <div class="grouped-dropdown">
+      <mat-form-field class="form-group select-dropdown" appearance="fill">
+        <mat-label>Срок действия счета</mat-label>
+        <input class="select-value" matInput type="number" formControlName="validityPeriod" id="validityPeriod">
+      </mat-form-field>
+      <div></div>
+    </div>
     <mat-checkbox formControlName="checkAll" (change)="selectAll($event)"></mat-checkbox>
-    <div class="order-items" formArrayName="item">
-      <ng-container *ngFor="let item of itemsFormArray.controls; let i = index">
-        <mat-card class="item" [formControl]="item">
+    <div class="form-group">
+      <div class="order-items" formArrayName="orderItems" *ngFor="let item of orderItems; let i = index">
+        <mat-card class="item" formGroupName={{i}} class="row">
           <mat-card-header>
             <mat-checkbox formControlName="checked"></mat-checkbox>
-            <input class="goodName" formControlName="goodName" [disabled]="true"/>
+            <input class="goodName" formControlName="goodName"/>
           </mat-card-header>
           <mat-card-content class="body-card">
             <div class="count">
               <div>количество</div>
-              <div><input class="insert" matInput type="number" [disabled]="true" style="border: none"
-                          formControlName="count"></div>
+              <div><input class="insert" matInput type="number" style="border: none" formControlName="count">
+              </div>
             </div>
             <div class="available">
               <div>Доступное количество</div>
@@ -159,19 +155,21 @@
             </div>
           </mat-card-content>
         </mat-card>
-      </ng-container>
+    </div>
     </div>
 
-  <div class="comment-group">
-    <label class="label-for-dropdown">Комментарий</label>
-    <mat-form-field class="form-group select-dropdown" appearance="fill">
-      <mat-label>Комментарий</mat-label>
-      <textarea matInput maxlength="450px" formControlName="comment"></textarea>
-    </mat-form-field>
-  </div>
+    <div class="comment-group">
+      <label class="label-for-dropdown">Комментарий</label>
+      <mat-form-field class="form-group select-dropdown" appearance="fill">
+        <mat-label>Комментарий</mat-label>
+        <textarea matInput maxlength="450px" formControlName="comment"></textarea>
+      </mat-form-field>
+    </div>
 
-  <div class="btn-group">
-    <button class="btn-send" [disabled]="fileLoading" (click)="sendToProcess()">Отправить предложение</button>
-  </div>
+    <div class="btn-group">
+      <button class="btn-send" [disabled]="fileLoading" (click)="sendToProcess()">Отправить предложение</button>
+    </div>
 
-</form>
+  </form>
+
+</div>
