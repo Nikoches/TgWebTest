@@ -62,9 +62,9 @@ export class AppComponent {
       );
     // this.order = this.data.order;
     // this.orderItems = this.data.orderItems;
-    this.portalService.getOfferData()
+    this.portalService.getOrderData("a1")
       .subscribe({
-        next: (value) => console.log(),
+        next: (value) => console.log(value),
         complete: () => console.log()
       });
     this.form = this.initForm(this.orderItems);
@@ -495,7 +495,6 @@ export class AppComponent {
     this.nestedNodeMap.set(node, flatNode);
     return flatNode;
   };
-
 
   checkPrepaidPercentValue() {
     if (this.form.get("prepaidPercent").value >= 100) {
