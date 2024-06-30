@@ -1,7 +1,6 @@
+
 export class Company {
-
-    public id: number;
-    public shortName: string;
-    public name: string;
-
+  id: number;
+  shortName: string;
+  displayName: string;
 }

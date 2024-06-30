@@ -3,10 +3,10 @@ import {ActivatedRoute} from "@angular/router";
 import {AbstractControl, FormArray, FormBuilder, FormGroup, NonNullableFormBuilder, Validators} from '@angular/forms'
 import {OrderItem} from "./models/order-item";
 import {OrderMain} from "./models/order-main";
-import {Account, Supplier} from "./models/account";
+import {Account} from "./models/account";
 import {CompanyDocument} from "./models/company-document";
 import {IdNameEntity} from "./models/id-name-entity";
-import {OfferDataForServer, OuterOfferCreateModel, ServerDataForOffer} from "./models/server-data-for-offer";
+import {OuterOfferCreateModel, ServerDataForOffer} from "./models/server-data-for-offer";
 import {MatTreeFlatDataSource, MatTreeFlattener} from "@angular/material/tree";
 import {FlatTreeControl} from "@angular/cdk/tree";
 import {MatInput} from "@angular/material/input";
@@ -16,6 +16,7 @@ import {ErrorService} from "./services/error.service";
 import {MatDialog} from "@angular/material/dialog";
 import {TranslateService} from "@ngx-translate/core";
 import {MatFormFieldModule} from '@angular/material/form-field';
+import {Supplier} from "./models/supplier";
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -41,6 +42,7 @@ export class AppComponent {
   treeFlattener: MatTreeFlattener<CompanyDocument, DocumentFlatNode>;
   treeDataSource: MatTreeFlatDataSource<CompanyDocument, DocumentFlatNode>;
   fileLoading: boolean = false;
+  dataSource: MatTreeFlatDataSource<CompanyDocument, DocumentFlatNode>;
 
   @ViewChild('payerSearch')
   payerSearch: MatInput;
@@ -65,7 +67,7 @@ export class AppComponent {
         next: (value) => console.log(),
         complete: () => console.log()
       });
-    // this.form = this.initForm(this.orderItems);
+    this.form = this.initForm(this.orderItems);
     // this.initSubscriptions();
     // this.disableCellsIfNeeded();
     // this.disablePercentAndDelay();
@@ -95,21 +97,19 @@ export class AppComponent {
     const array = orderItems.map(createFormControl);
 
     return this.fb.group({
-      supplier: ["", Validators.required],
       payer: ["", Validators.required],
       companyDocument: [""],
       deliveryIncluded: ["", Validators.required],
       prepaid: ["", Validators.required],
       prepaidPercent:[""],
       validityPeriod:[""],
-      checkAll:[this.orderItems.every(oi => oi.checked)],
+      // checkAll:[this.orderItems.every(oi => oi.checked)],
       needDelay: ["", Validators.required],
-      items: this.fb.array(array),
+      // items: this.fb.array(array),
       allAvailable: ["", Validators.required],
       delay:[""],
-      bankGuarantee:[""],
+      // bankGuarantee:[""],
       comment:[""],
-      operatorComment:[""],
       fileControl: ["", Validators.required]
     })
   }
@@ -301,13 +301,13 @@ export class AppComponent {
     }
   }
 
-  sendToProcess(acceptance: boolean): void {
-    const data:OfferDataForServer = this.getData(acceptance);
+  sendToProcess(): void {
+    const data:OuterOfferCreateModel = this.getData();
 
     if (!data) {
       return;
     }
-    this.portalService.sendToProcess(data, this.order.id).subscribe({
+    this.portalService.sendToProcess(data).subscribe({
       next: () => {
         this.createDlg(this.translate.instant("options.success"),
           this.translate.instant("orders.orderReport.sendSuccess"));
@@ -336,7 +336,7 @@ export class AppComponent {
    // this.matDialog.open(OkDlgComponent, config);
   }
 
-  private getData(acceptance: boolean): OfferDataForServer {
+  private getData(): OuterOfferCreateModel {
     const items = this.processOrderItems();
     if (this.form.invalid) {
       this.createDlg(this.translate.instant("options.error"), this.translate.instant("orders.orderReport.formInvalid"));
@@ -346,13 +346,8 @@ export class AppComponent {
       this.createDlg(this.translate.instant("options.error"), this.translate.instant("orders.orderReport.formInvalid"));
       return null;
     }
-    const outerOfferCreateModel = OuterOfferCreateModel.createFromForms(this.form, this.file?.id, items, this.order.id);
-    return new OfferDataForServer(
-      acceptance,
-      this.form.controls['supplier'].value.email,
-      this.file,
-      new Account(this.form.controls['payer'].value.id),
-      outerOfferCreateModel);
+    return OuterOfferCreateModel.createFromForms(this.form, this.file?.id, items, this.order.id);
+
   }
 
   private validItems(): boolean {
