@@ -42,8 +42,8 @@ export class PortalApiService {
     return this.http.post('/core/orders/upload?checkFormat=true', formData);
   }
 
-  public getOfferData(): Observable<any> {
-    return this.http.post('/core/supplier/getorders',{"id":[228365752],"requestId":960146,"status":"actual","size":10,"lastId":-1});
+  public getOrderData(telegramcode:string): Observable<any> {
+    return this.http.get(`/core//supplier/getorderfromtelegram/${telegramcode}/`);
   }
 
 }

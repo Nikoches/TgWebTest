@@ -1,0 +1,12 @@
+[micronaut.application]
+name="java_gradle_bot_test"
+#tag::datasource[]
+[datasources.default]
+url="jdbc:postgresql://172.16.22.5:5432/cyn_maindb_custom2"
+username="equipment"
+password="password"
+dialect="Postgres"
+driver-class-name="org.postgresql.Driver"
+[telegram]
+weburl="https://t.me/ts_mini_app_bot/tgwebtest"
+token="7431332829:AAHLliU6T_VvWyqfgt4KcXEA35TMnqXv-ao"
