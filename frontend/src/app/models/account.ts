@@ -16,9 +16,5 @@ class AccountType {
   public id: number;
   public name: string;
 }
-class Supplier {
-  companyId: number;
-  companyInn: string;
-  email: string;
-}
-export {Account,AccountType,Supplier};
+
+export {Account,AccountType};

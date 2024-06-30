@@ -10,8 +10,10 @@
 
 </div>
 <form class="offer-form" [formGroup]="form">
+
+
   <mat-form-field style="width: 100%;">
-    <mat-label>{{ 'orders.orderReport.offerToProcess' | translate }}</mat-label>
+    <mat-label>Прикрепить счет</mat-label>
     <button mat-icon-button matPrefix (click)="f_input.click()">
       <mat-icon>attach_file</mat-icon>
     </button>
@@ -29,165 +31,147 @@
   </mat-form-field>
 
 
-<!--  <mat-form-field class="form-group select-dropdown" appearance="fill">-->
-<!--    <mat-label>{{ 'infoBody.supplier' | translate }}</mat-label>-->
-<!--    <mat-select class="form-control " id="supplier" placeholder="{{'infoBody.supplier' | translate}}"-->
-<!--                formControlName="supplier"-->
-<!--                (selectionChange)="loadCompanyDocuments()">-->
-<!--      <input matInput class="searchModel" placeholder="{{'actions.search' | translate}}..."-->
-<!--             (keyup)="searchSuppler($event.target)" autofocus>-->
-<!--      <mat-option *ngFor="let sup of supplierList" [value]="sup">{{ sup.email }}</mat-option>-->
-<!--    </mat-select>-->
-<!--  </mat-form-field>-->
+  <mat-form-field class="form-group select-dropdown" appearance="fill">
+    <mat-label>Укажите юридическое лицо</mat-label>
+    <mat-select class="form-control " id="payer" placeholder="Плательщик"
+                [compareWith]="compareObjectsById"
+                formControlName="payer">
+      <input matInput class="searchModel" placeholder="Поиск..." (keyup)="startPayerSearch()"
+             #payerSearch autofocus>
+      <mat-option *ngFor="let p of payerList" [value]="p">{{ p | accountNameTransform }}</mat-option>
+    </mat-select>
+  </mat-form-field>
 
-<!--  <mat-form-field class="form-group select-dropdown" appearance="fill">-->
-<!--    <mat-label>{{ 'infoBody.payer' | translate }}</mat-label>-->
-<!--    <mat-select class="form-control " id="payer" placeholder="{{'infoBody.payer' | translate}}"-->
-<!--                [compareWith]="compareObjectsById"-->
-<!--                formControlName="payer">-->
-<!--      <input matInput class="searchModel" placeholder="{{'actions.search' | translate}}..." (keyup)="startPayerSearch()"-->
-<!--             #payerSearch autofocus>-->
-<!--      <mat-option *ngFor="let p of payerList" [value]="p">{{ p | accountNameTransform }}</mat-option>-->
-<!--    </mat-select>-->
-<!--  </mat-form-field>-->
+  <mat-form-field class="form-group select-dropdown" appearance="fill">
+    <mat-label>Укажите документ основания</mat-label>
+    <mat-select class="form-control " id="companyDocument" data-live-search="true"
+                [disabled]="true"
+                placeholder="Документ" formControlName="companyDocument"
+                (click)="treeControl.expandAll()">
+      <input matInput class="searchModel" placeholder="Поиск..."
+             (keyup)="startDocumentSearch()" (keydown)="$event.stopPropagation()" #documentSearch autofocus>
+      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+          <mat-option [value]="node.item" [disabled]="node.item.disabled">
+            {{ node.item.shortTitle }}
+          </mat-option>
+        </mat-tree-node>
+        <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
+          <mat-option [value]="node.item" [disabled]="node.item.disabled">
+            <div class="level-doc">
+              <mat-icon class="mat-icon-rtl-mirror"></mat-icon>
+              {{ node.item.shortTitle }}
+            </div>
+          </mat-option>
+        </mat-tree-node>
+      </mat-tree>
+    </mat-select>
+  </mat-form-field>
 
-<!--  <mat-form-field class="form-group select-dropdown" appearance="fill">-->
-<!--    <mat-label>{{ 'infoBody.companyDocument' | translate }}</mat-label>-->
-<!--    <mat-select class="form-control " id="companyDocument" data-live-search="true"-->
-<!--                disabled="{{companyDocumentList.length==0}}"-->
-<!--                placeholder="{{'infoBody.companyDocument' | translate}}" formControlName="companyDocument"-->
-<!--                (click)="treeControl.expandAll()">-->
-<!--      <input matInput class="searchModel" placeholder="{{'actions.search' | translate}}..."-->
-<!--             (keyup)="startDocumentSearch()" (keydown)="$event.stopPropagation()" #documentSearch autofocus>-->
-<!--      <mat-tree [dataSource]="treeDataSource" [treeControl]="treeControl">-->
-<!--        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>-->
-<!--          <mat-option [value]="node.item" [disabled]="node.item.disabled">-->
-<!--            {{ node.item.shortTitle }}-->
-<!--          </mat-option>-->
-<!--        </mat-tree-node>-->
-<!--        <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>-->
-<!--          <mat-option [value]="node.item" [disabled]="node.item.disabled">-->
-<!--            <div class="level-doc">-->
-<!--              <mat-icon class="mat-icon-rtl-mirror"></mat-icon>-->
-<!--              {{ node.item.shortTitle }}-->
-<!--            </div>-->
-<!--          </mat-option>-->
-<!--        </mat-tree-node>-->
-<!--      </mat-tree>-->
-<!--    </mat-select>-->
-<!--  </mat-form-field>-->
+  <label class="label-for-dropdown">Включена ли стоимость доставки</label>
+  <div class="grouped-dropdown">
+    <mat-form-field class="form-group select-dropdown" appearance="fill">
+      <mat-label>Доставка</mat-label>
+      <mat-select class="form-control " id="deliveryIncluded"
+                  formControlName="deliveryIncluded">
+        <mat-option [value]="true">Да</mat-option>
+        <mat-option [value]="false">Нет</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div></div>
+  </div>
 
-<!--  <label class="label-for-dropdown">{{ 'orders.orderReport.deliveryIncluded' | translate }}</label>-->
-<!--  <div class="grouped-dropdown">-->
-<!--    <mat-form-field class="form-group select-dropdown" appearance="fill">-->
-<!--      <mat-label>{{ 'orders.orderReport.delivery' | translate }}</mat-label>-->
-<!--      <mat-select class="form-control " id="deliveryIncluded"-->
-<!--                  formControlName="deliveryIncluded">-->
-<!--        <mat-option [value]="true">{{ 'orders.orderReport.yes' | translate }}</mat-option>-->
-<!--        <mat-option [value]="false">{{ 'orders.orderReport.no' | translate }}</mat-option>-->
-<!--      </mat-select>-->
-<!--    </mat-form-field>-->
-<!--    <div></div>-->
-<!--  </div>-->
+  <label class="label-for-dropdown">Требуется предоплата, %?</label>
+  <div class="grouped-dropdown">
+    <mat-form-field class="form-group select-dropdown" appearance="fill">
+      <mat-label>Предоплата</mat-label>
+      <mat-select class="form-control " id="prepaidRequired"
+                  formControlName="prepaid" (selectionChange)="updateForm($event)">
+        <mat-option [value]="true">Да</mat-option>
+        <mat-option [value]="false">Нет</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="form-group select-dropdown" appearance="fill">
+      <input class="select-value" matInput type="number" formControlName="prepaidPercent" id="prepaidPercent" (change)="checkPrepaidPercentValue()">
+    </mat-form-field>
+  </div>
 
-<!--  <label class="label-for-dropdown">{{ 'orders.orderReport.prepaidNeeded' | translate }}</label>-->
-<!--  <div class="grouped-dropdown">-->
-<!--    <mat-form-field class="form-group select-dropdown" appearance="fill">-->
-<!--      <mat-label>{{ 'orders.orderReport.prepaid' | translate }}</mat-label>-->
-<!--      <mat-select class="form-control " id="prepaidRequired"-->
-<!--                  formControlName="prepaid" (selectionChange)="updateForm($event)">-->
-<!--        <mat-option [value]="true">{{ 'orders.orderReport.yes' | translate }}</mat-option>-->
-<!--        <mat-option [value]="false">{{ 'orders.orderReport.no' | translate }}</mat-option>-->
-<!--      </mat-select>-->
-<!--    </mat-form-field>-->
-<!--    <mat-form-field class="form-group select-dropdown" appearance="fill">-->
-<!--      <input class="select-value" matInput type="number" formControlName="prepaidPercent" id="prepaidPercent" (change)="checkPrepaidPercentValue()">-->
-<!--    </mat-form-field>-->
-<!--  </div>-->
+  <label class="label-for-dropdown">Требуется отсрочка, дней?</label>
+  <div class="grouped-dropdown">
+    <mat-form-field class="form-group select-dropdown" appearance="fill">
+      <mat-label>Отсрочка</mat-label>
+      <mat-select class="form-control " id="needDelay" (selectionChange)="updateForm($event)"
+                  formControlName="needDelay">
+        <mat-option [value]="true">Да</mat-option>
+        <mat-option [value]="false">Нет</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="form-group select-dropdown" appearance="fill">
+      <input class="select-value" matInput type="number" formControlName="delay" id="delay">
+    </mat-form-field>
+  </div>
 
-<!--  <label class="label-for-dropdown">{{ 'orders.orderReport.delayNeeded' | translate }}</label>-->
-<!--  <div class="grouped-dropdown">-->
-<!--    <mat-form-field class="form-group select-dropdown" appearance="fill">-->
-<!--      <mat-label>{{ 'orders.orderReport.delay' | translate }}</mat-label>-->
-<!--      <mat-select class="form-control " id="needDelay" (selectionChange)="updateForm($event)"-->
-<!--                  formControlName="needDelay">-->
-<!--        <mat-option [value]="true">{{ 'orders.orderReport.yes' | translate }}</mat-option>-->
-<!--        <mat-option [value]="false">{{ 'orders.orderReport.no' | translate }}</mat-option>-->
-<!--      </mat-select>-->
-<!--    </mat-form-field>-->
-<!--    <mat-form-field class="form-group select-dropdown" appearance="fill">-->
-<!--      <input class="select-value" matInput type="number" formControlName="delay" id="delay">-->
-<!--    </mat-form-field>-->
-<!--  </div>-->
 
-<!--  <label class="label-for-dropdown">{{ 'orders.orderReport.allAvailable' | translate }}</label>-->
-<!--  <div class="grouped-dropdown">-->
-<!--    <mat-form-field class="form-group select-dropdown" appearance="fill">-->
-<!--      <mat-label>{{ 'orders.orderReport.available' | translate }}</mat-label>-->
-<!--      <mat-select class="form-control" id="allAvailable" formControlName="allAvailable"-->
-<!--                  (selectionChange)="updateCounts($event)">-->
-<!--        <mat-option *ngFor="let ans of availableAnswers"-->
-<!--                    [value]="ans">{{ 'orders.orderReport.' + ans | translate }}-->
-<!--        </mat-option>-->
-<!--      </mat-select>-->
-<!--    </mat-form-field>-->
-<!--    <div></div>-->
-<!--  </div>-->
+  <label class="label-for-dropdown">Все в наличии?</label>
+  <div class="grouped-dropdown">
+    <mat-form-field class="form-group select-dropdown" appearance="fill">
+      <mat-label>Наличие</mat-label>
+      <mat-select class="form-control" id="allAvailable" formControlName="allAvailable"
+                  (selectionChange)="updateCounts($event)">
+        <mat-option *ngFor="let a of availableAnswers"
+                    [value]="a">{{a}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div></div>
+  </div>
 
-<!--  <label class="label-for-dropdown">{{ 'orders.orderReport.validityPeriod' | translate }}</label>-->
-<!--  <div class="grouped-dropdown">-->
-<!--    <mat-form-field class="form-group select-dropdown" appearance="fill">-->
-<!--      <mat-label>{{ 'orders.orderReport.validity' | translate }}</mat-label>-->
-<!--      <input class="select-value" matInput type="number" formControlName="validityPeriod" id="validityPeriod">-->
-<!--    </mat-form-field>-->
-<!--    <div></div>-->
-<!--  </div>-->
+  <label class="label-for-dropdown">Срок действия счета</label>
+  <div class="grouped-dropdown">
+    <mat-form-field class="form-group select-dropdown" appearance="fill">
+      <mat-label>Срок действия счета</mat-label>
+      <input class="select-value" matInput type="number" formControlName="validityPeriod" id="validityPeriod">
+    </mat-form-field>
+    <div></div>
+  </div>
 
-<!--  <mat-checkbox formControlName="checkAll" (change)="selectAll($event)"></mat-checkbox>-->
-<!--  <div class="order-items" formArrayName="item">-->
-<!--    @for (item of itemsFormArray.controls; track itemControlArray) {-->
-<!--      <ng-container>-->
-<!--        <mat-card class="item" [formGroup]="item">-->
-<!--          <mat-card-header>-->
-<!--            <mat-checkbox formControlName="checked"></mat-checkbox>-->
-<!--            <input class="goodName" formControlName="goodName" disabled/>-->
-<!--          </mat-card-header>-->
-<!--          <mat-card-content class="body-card">-->
-<!--            <div class="count">-->
-<!--              <div>{{ 'orders.orderReport.count' | translate }}</div>-->
-<!--              <div><input class="insert" matInput type="number" disabled="disabled" style="border: none"-->
-<!--                          formControlName="count"></div>-->
-<!--            </div>-->
-<!--            <div class="available">-->
-<!--              <div>{{ 'orders.orderReport.availableCount' | translate }}</div>-->
-<!--              <div><input class="insert" matInput type="number" formControlName="availableCount"></div>-->
-<!--            </div>-->
-<!--            <div class="delivery-terms">-->
-<!--              <div>{{ 'orders.orderReport.deliveryDays' | translate }}</div>-->
-<!--              <div><input class="insert" matInput type="number" formControlName="deliveryDays"></div>-->
-<!--            </div>-->
-<!--          </mat-card-content>-->
-<!--        </mat-card>-->
-<!--      </ng-container>-->
-<!--    }-->
-<!--  </div>-->
+    <mat-checkbox formControlName="checkAll" (change)="selectAll($event)"></mat-checkbox>
+    <div class="order-items" formArrayName="item">
+      <ng-container *ngFor="let item of itemsFormArray.controls; let i = index">
+        <mat-card class="item" [formControl]="item">
+          <mat-card-header>
+            <mat-checkbox formControlName="checked"></mat-checkbox>
+            <input class="goodName" formControlName="goodName" [disabled]="true"/>
+          </mat-card-header>
+          <mat-card-content class="body-card">
+            <div class="count">
+              <div>количество</div>
+              <div><input class="insert" matInput type="number" [disabled]="true" style="border: none"
+                          formControlName="count"></div>
+            </div>
+            <div class="available">
+              <div>Доступное количество</div>
+              <div><input class="insert" matInput type="number" formControlName="availableCount"></div>
+            </div>
+            <div class="delivery-terms">
+              <div>Срок поставки</div>
+              <div><input class="insert" matInput type="number" formControlName="deliveryDays"></div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </ng-container>
+    </div>
 
-<!--  <div class="comment-group">-->
-<!--    <label class="label-for-dropdown">{{ 'orders.orderReport.innerComment' | translate }}</label>-->
-<!--    <mat-form-field class="form-group select-dropdown" appearance="fill">-->
-<!--      <mat-label>{{ 'orders.orderReport.innerComment' | translate }}</mat-label>-->
-<!--      <textarea matInput maxlength="450px" formControlName="comment"></textarea>-->
-<!--    </mat-form-field>-->
-<!--    <label class="label-for-dropdown">{{ 'orders.orderReport.operatorComment' | translate }}</label>-->
-<!--    <mat-form-field class="form-group select-dropdown" appearance="fill">-->
-<!--      <mat-label>{{ 'orders.orderReport.operatorComment' | translate }}</mat-label>-->
-<!--      <textarea matInput maxlength="450px" formControlName="operatorComment"></textarea>-->
-<!--    </mat-form-field>-->
-<!--  </div>-->
+  <div class="comment-group">
+    <label class="label-for-dropdown">Комментарий</label>
+    <mat-form-field class="form-group select-dropdown" appearance="fill">
+      <mat-label>Комментарий</mat-label>
+      <textarea matInput maxlength="450px" formControlName="comment"></textarea>
+    </mat-form-field>
+  </div>
 
-<!--  <div class="btn-group">-->
-<!--    <button class="btn-send" [disabled]="fileLoading" (click)="sendToProcess(false)">{{ 'orders.orderReport.sendWithoutAcceptance' | translate }}</button>-->
-<!--    <button class="btn-send" [disabled]="fileLoading" (click)="sendToProcess(true)">{{ 'orders.orderReport.sendWithAcceptance' | translate }}</button>-->
-<!--  </div>-->
+  <div class="btn-group">
+    <button class="btn-send" [disabled]="fileLoading" (click)="sendToProcess()">Отправить предложение</button>
+  </div>
 
 </form>
