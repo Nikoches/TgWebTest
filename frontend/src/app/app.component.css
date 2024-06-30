@@ -9,7 +9,19 @@
     margin-bottom: 0.4em;
   }
 }
-html{
+body{
   background: var(--tg-theme-bg-color);
+}
+.spinner-block{
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  background: var(--tg-theme-bg-color);
+  z-index: 2000;
 
 }
