@@ -9,7 +9,7 @@
     margin-bottom: 0.4em;
   }
 }
-body{
+.main-content{
   background: var(--tg-theme-bg-color);
 }
 .spinner-block{

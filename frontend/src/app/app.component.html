@@ -1,7 +1,7 @@
 <div *ngIf="loadingOrderInfo" class="spinner-block">
   <mat-spinner [diameter]="200"></mat-spinner>
 </div>
-<div *ngIf="!loadingOrderInfo">
+<div *ngIf="!loadingOrderInfo" class="main-content">
   <span>Загрузка счета</span>
   <div class="header">{{ 'orders.orderReport.offerFileAttach' | translate }}</div>
   <form class="offer-form" [formGroup]="mainForm">
