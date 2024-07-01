@@ -2,7 +2,7 @@
   <mat-spinner [diameter]="200"></mat-spinner>
 </div>
 <div *ngIf="!loadingOrderInfo">
-
+  <span>Загрузка счета</span>
   <div class="header">{{ 'orders.orderReport.offerFileAttach' | translate }}</div>
   <form class="offer-form" [formGroup]="mainForm">
 
@@ -61,7 +61,6 @@
     </mat-form-field>
 
     <label class="label-for-dropdown">Включена ли стоимость доставки</label>
-
     <div class="grouped-dropdown">
       <mat-form-field class="form-group select-dropdown" appearance="fill">
         <mat-label>Доставка</mat-label>
@@ -75,7 +74,6 @@
     </div>
 
     <label class="label-for-dropdown">Требуется предоплата, %?</label>
-
     <div class="grouped-dropdown">
       <mat-form-field class="form-group select-dropdown" appearance="fill">
         <mat-label>Предоплата</mat-label>
@@ -92,7 +90,6 @@
     </div>
 
     <label class="label-for-dropdown">Требуется отсрочка, дней?</label>
-
     <div class="grouped-dropdown">
       <mat-form-field class="form-group select-dropdown" appearance="fill">
         <mat-label>Отсрочка</mat-label>
@@ -108,7 +105,6 @@
     </div>
 
     <label class="label-for-dropdown">Все в наличии?</label>
-
     <div class="grouped-dropdown">
       <mat-form-field class="form-group select-dropdown" appearance="fill">
         <mat-label>Наличие</mat-label>
@@ -123,7 +119,6 @@
     </div>
 
     <label class="label-for-dropdown">Срок действия счета</label>
-
     <div class="grouped-dropdown">
       <mat-form-field class="form-group select-dropdown" appearance="fill">
         <mat-label>Срок действия счета</mat-label>
@@ -141,17 +136,22 @@
           </mat-card-header>
           <mat-card-content class="body-card">
             <div class="count">
-              <div>количество</div>
-              <div><input class="insert" matInput type="number" style="border: none" formControlName="count">
+              <label for="count">количество</label>
+              <div id="count">
+                <input class="insert" matInput type="number" style="border: none" formControlName="count">
               </div>
             </div>
             <div class="available">
-              <div>Доступное количество</div>
-              <div><input class="insert" matInput type="number" formControlName="availableCount"></div>
+              <label for="availableCount">Доступное количество</label>
+              <div id="availableCount">
+                <input class="insert" matInput type="number" formControlName="availableCount">
+              </div>
             </div>
             <div class="delivery-terms">
-              <div>Срок поставки</div>
-              <div><input class="insert" matInput type="number" formControlName="deliveryDays"></div>
+              <label for="deliveryDays">Срок поставки</label>
+              <div id="deliveryDays">
+                <input class="insert" matInput type="number" formControlName="deliveryDays">
+              </div>
             </div>
           </mat-card-content>
         </mat-card>

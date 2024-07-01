@@ -25,3 +25,9 @@ body{
   z-index: 2000;
 
 }
+.order-items span{
+  color: var(--mdc-filled-text-field-label-text-color);
+}
+.order-items label{
+  color: var(--mdc-filled-text-field-label-text-color);
+}
